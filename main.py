@@ -1,12 +1,11 @@
 # ID: 010347381
 # main.py
-
-import datetime
-import random
-import math
+import truck
 from hash_table import HashTable
 import csv
 from package import Package
+from simulated_annealing import SimulatedAnnealing
+from datetime import datetime, timedelta
 from truck_loader import TruckLoader
 
 # create hash table instance
@@ -31,6 +30,7 @@ def load_hash_table():
             # create package object and insert into hash table
             package = Package(package_id, address, deadline, city, zipcode, weight, status)
             hash_table.insert(package.package_id, package)
+            # print(f"Loaded package {package.package_id}")
 
 
 # read in address file
@@ -40,6 +40,11 @@ def read_address_file():
         # convert to list for easy access and readability
         address_list = list(address_data)
     return address_list
+
+
+# function for quick lookup of address indices
+def create_address_to_index(address_list):
+    return {row[2]: int(row[0]) for row in address_list}
 
 
 # read in distance file and create matrix
@@ -64,188 +69,109 @@ def read_distance_file():
     return distance_matrix
 
 
-# get distance between two addresses from the matrix
-def find_distance_between(point_1, point_2, distance_matrix):
-    distance = distance_matrix[point_1][point_2]
-
-    # if distance one way is empty, get distance from opposite way
-    if distance is None:
-        distance = distance_matrix[point_2][point_1]
-
-    # convert distance to float and validate
-    return float(distance) if distance is not None else None
-
-
-'''
-# TESTING
-load_hash_table()
-
-addresses = read_address_file()
-print(addresses)
-
-dist_matrix = read_distance_file()
-print(dist_matrix)
-'''
-
-
-# function to find the nearest package
-def find_nearest_package(curr_location, packages, distance_matrix, address_list):
-    min_distance = float('inf')
-    nearest_package = None
-
-    for package in packages:
-        # get index of current location and package delivery address
-        curr_index = address_list.index(curr_location)
-        package_index = address_list.index(package.address)
-
-        # get distance between current location and package address
-        distance = distance_matrix[curr_index][package_index]
-
-        # find package with minimum distance
-        if distance < min_distance:
-            min_distance = distance
-            nearest_package = package
-
-    return nearest_package, min_distance
-
-
-# initial greedy algorithm to deliver packages
-def greedy_initial_algorithm(packages, distance_matrix, address_list, start_location, truck_speed=18):
-    curr_location = start_location
-    total_time = datetime.timedelta(hours=0)
-    delivered_packages = []
-
-    # sort packages based on priority or other criteria if needed
-    # starting by prioritizing the earliest deadline
-    packages.sort(key=lambda p: p.deadline)
-
-    while packages:
-        # find nearest package to deliver next
-        nearest_package, distance = find_nearest_package(curr_location, packages, distance_matrix, address_list)
-
-        if nearest_package:
-            time_taken = datetime.timedelta(hours=distance / truck_speed)
-
-            # update current time and location
-            total_time += time_taken
-            curr_location = nearest_package.address
-
-            # mark as delivered and remove from list of packages
-            nearest_package.status = "Delivered"
-            delivered_packages.append(nearest_package)
-            packages.remove(nearest_package)
-
-            # TESTING
-            print(f"Delivered {nearest_package.package_id} to {nearest_package.address}")
-
-        else:
-            break
-
-        return delivered_packages
-
-
-def calculate_total_distance(trucks, dist_matrix):
-    total_distance = 0
-
-    for truck in trucks.values():
-        for i in range(len(truck.packages) - 1):
-            from_address = truck.packages[i].address
-            to_address = truck.packages[i + 1].address
-
-            from_index = truck.packages[i].address_list.index(from_address)
-            to_index = truck.packages[i + 1].address_list.index(to_address)
-
-            total_distance += dist_matrix[from_index][to_index]
-
-    return total_distance
-
-
-# simulated annealing approach for optimization begins here
-# neighbor solution slightly modifies existing greedy solution
-def generate_neighbor_solution(trucks):
-    # choose two random trucks
-    truck_ids = list(trucks.keys())
-    truck1, truck2 = random.sample(truck_ids, 2)
-
-    if trucks[truck1].packages and trucks[truck2].packages:
-        # choose a random package between two trucks
-        package1 = random.choice(trucks[truck1].packages)
-        package2 = random.choice(trucks[truck2].packages)
-
-        # swap the packages between the two trucks
-        trucks[truck1].packages.remove(package1)
-        trucks[truck2].packages.remove(package2)
-        trucks[truck1].packages.append(package2)
-        trucks[truck2].packages.append(package1)
-
-    # return the modified trucks as the new neighbor solution
-    return trucks
-
-
-# define small probability of acceptance for non-optimal solutions
-def acceptance_probability(old_cost, new_cost, temp):
-    if new_cost < old_cost:
-        return 1.0
-    return math.exp((new_cost - old_cost) / temp)
-
-
-# reduce scope of search for next point by slightly lowering temperature
-def cooling_schedule(init_temp, alpha, iteration):
-    return init_temp * (alpha ** iteration)
-
-
-def simulated_annealing(trucks, dist_matrix, address_list, init_temp=10000, alpha=0.995, stop_temp=1):
-    curr_solution = trucks
-    curr_cost = calculate_total_distance(trucks, dist_matrix)
-    temp = init_temp
-    iteration = 0
-
-    while temp > stop_temp:
-        new_solution = generate_neighbor_solution(trucks)
-        new_cost = calculate_total_distance(trucks, dist_matrix)
-
-        if acceptance_probability(curr_cost, new_cost, temp) > random.random():
-            curr_cost = new_cost
-            curr_solution = new_solution
-        temp = cooling_schedule(temp, alpha, iteration)
-        iteration += 1
-
-    return curr_solution
-
-
-load_hash_table()
-addresses = read_address_file()
-distance_matrix = read_distance_file()
-
-# create TruckLoader instance
-truck_loader = TruckLoader(hash_table, distance_matrix, addresses)
-truck_loader.load_all_trucks()
-
-initial_trucks = truck_loader.trucks
-all_packages = hash_table.get_all_packages()
-delivered_packages = greedy_initial_algorithm(all_packages, distance_matrix, addresses,
-                                              "Western Governors University")
-
-optimized_trucks = simulated_annealing(initial_trucks, distance_matrix, addresses)
-
-
-def display_truck_status(trucks):
-    for truck_id, truck in trucks.items():
+def display_truck_status(truck_loader):
+    for truck_id, truck in truck_loader.trucks.items():
         print(f"Truck ID: {truck_id}")
         for package in truck.packages:
             print(f"Package: {package.package_id}, Address: {package.address}, Status: {package.status}")
 
 
-def main():
-    while True:
-        print("Options:")
-        print("1. View Truck Status")
-        print("2. Exit")
+def display_mileage(trucks, distance_matrix):
+    total_mileage = sum(truck.calculate_total_distance(distance_matrix) for truck in trucks.values())
+    print(f"Total mileage of all trucks: {total_mileage:.2f} miles")
 
-        choice = input("Enter your choice: ")
-        if choice == "1":
-            display_truck_status(optimized_trucks)
-        elif choice == "2":
-            break
-        else:
-            print("Invalid choice")
+
+#
+#
+# def test_hash_function(self):
+#     test_keys = list(range(1, 41))
+#     for key in test_keys:
+#         bucket_index = hash_table._hash_function(str(key))
+#         print(f"Package ID: {key}, Hash Index: {bucket_index}")
+
+
+# starting day here
+# simulating the day starting at 8:00am, time will pass in increments of 15 minutes
+def simulate_day(truck_loader):
+    start_time = datetime.strptime("08:00", "%H:%M")
+    end_of_day = datetime.strptime("17:00", "%H:%M")
+
+    current_time = start_time
+
+    while current_time <= end_of_day:
+        # print(f"Current time: {current_time.strftime('%H:%M')}")
+        truck_loader.schedule_truck_departures(current_time)
+        process_deliveries(truck_loader, current_time)
+        current_time += timedelta(minutes=15)
+
+
+def process_deliveries(tl, current_time):
+    # check for truck departures
+    for truck in tl.trucks.values():
+        if truck.is_active():
+            for package in truck.packages:
+                if package.delivery_time and package.delivery_time <= current_time:
+                    package.update_status('Delivered', current_time)
+                    print(f"Package {package.package_id} delivered at {package.delivery_time}")
+
+            # check if truck should return to hub
+            if truck.return_time and truck.return_time <= current_time:
+                truck.return_to_hub(current_time)
+                print(f"Truck {truck.truck_id} returned at {truck.return_time}")
+
+
+def main():
+    load_hash_table()
+
+    # pkg1 = Package(1, "123 Elm", "10:20am", "Salt Lake City", "07458", "2lb", "At Hub")
+    # pkg2 = Package(2, "456 Oak", "10:30am", "Salt Lake City", "07458", "2lb", "At Hub")
+    #
+    # hash_table.insert(pkg1.package_id, pkg1)
+    # hash_table.insert(pkg2.package_id, pkg2)
+    #
+    # print(hash_table.lookup(1))
+    # print(hash_table.lookup(2))
+    # print(hash_table.lookup(3))
+
+    # # Print out the packages in the hash table
+    # for package_id in range(1, 41):
+    #     package = hash_table.lookup(str(package_id))
+    #     if package:
+    #         print(f"Package {package.package_id} in hash table: {package}")
+    #     else:
+    #         print(f"Package {package_id} not in hash table")
+
+    distance_matrix = read_distance_file()
+    address_list = read_address_file()
+    address_to_index = create_address_to_index(address_list)
+
+    init_temp = 10000
+    alpha = 0.9
+    # optimizer = SimulatedAnnealing(distance_matrix, init_temp=init_temp, alpha=alpha, address_to_index=address_to_index)
+
+    # create TruckLoader instance and load trucks
+    truck_loader = TruckLoader(hash_table, distance_matrix, address_list)
+
+    # initialize simulated annealing with address_to_index for distance calculation
+    optimizer = SimulatedAnnealing(distance_matrix, init_temp=1000, alpha=0.895, address_to_index=address_to_index)
+
+    # truck_loader.load_trucks()
+    truck_loader.load_together_packages(truck_loader)
+    truck_loader.load_initial_trucks(truck_loader)
+    # truck_loader.load_delayed_packages(truck_loader)
+    # truck_loader.load_trucks()
+    #
+    truck_loader.optimize_truck_routes(optimizer)
+    #
+    # simulate_day(truck_loader)
+    #
+    print(f"Truck 1 packages: {[p.package_id for p in truck_loader.trucks[1].packages]}")
+    print(f"Truck 2 packages: {[p.package_id for p in truck_loader.trucks[2].packages]}")
+    print(f"Truck 3 packages: {[p.package_id for p in truck_loader.trucks[3].packages]}")
+    #
+    # display_truck_status(truck_loader)
+    # display_mileage(truck_loader, distance_matrix)
+
+
+if __name__ == "__main__":
+    main()
