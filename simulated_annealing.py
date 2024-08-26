@@ -26,6 +26,7 @@ class SimulatedAnnealing:
         current_address = self.address_to_index[route[-1].address]
         next_address = self.address_to_index[route[0].address]
         total_distance += self.distance_matrix[current_address][next_address]
+
         print(f"Total distance for route: {total_distance}")
 
         return total_distance
