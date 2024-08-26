@@ -1,13 +1,12 @@
 # ID: 010347381
 # main.py
-
+import package
 from hash_table import HashTable
 import csv
 from package import Package
 from simulated_annealing import SimulatedAnnealing
 from datetime import timedelta
 from truck_loader import TruckLoader
-
 
 # create hash table instance
 hash_table = HashTable()
@@ -19,6 +18,7 @@ def load_hash_table():
     with open('CSV/package.csv', mode='r') as csv_file_1:
         package_data = csv.reader(csv_file_1)
 
+        # load each column of data into the table, identifiable by unique package ID
         for pk in package_data:
             package_id = int(pk[0])
             address = pk[1]
@@ -38,7 +38,7 @@ def load_hash_table():
 def read_address_file():
     with open('CSV/address.csv', mode='r') as csv_file_2:
         address_data = csv.reader(csv_file_2)
-        # convert to list for easy access and readability
+        # convert to list for easy access and iteration
         address_list = list(address_data)
     return address_list
 
@@ -70,19 +70,23 @@ def read_distance_file():
     return dist_matrix
 
 
-# this method will ensure we are using two addresses to determine the distance instead of two indices
+# ensure we are using two addresses to determine the distance between packages instead of two indices
+# extract address only from each row in address list
 def find_address_index(address, address_list):
     index = 0
     # for row in distance_matrix:
     for row in address_list:
+        # using address at index 2, NOT location name at index 1
+        # i.e. '0', '4001 South 700 East'
         if row[2] == address:
             return index
         index += 1
     return -1
 
 
-# get distance between two addresses from the matrix
+# get distance between two points in the address list
 def find_distance_between(start_address, end_address, address_list):
+    # map each address to its index to find stored distance
     point_1 = find_address_index(start_address, address_list)
     point_2 = find_address_index(end_address, address_list)
     distance = distance_matrix[point_1][point_2]
@@ -95,44 +99,46 @@ def find_distance_between(start_address, end_address, address_list):
     return float(distance) if distance is not None else None
 
 
-def display_truck_status(truck_loader):
-    for truck_id, truck in truck_loader.trucks.items():
-        print(f"Truck ID: {truck_id}")
-        for package in truck.packages:
-            print(f"Package: {package.package_id}, Address: {package.address}, Status: {package.status}")
-
-
-def display_mileage(trucks, distance_matrix):
-    total_mileage = sum(truck.calculate_total_distance(distance_matrix) for truck in trucks.values())
-    print(f"Total mileage of all trucks: {total_mileage:.2f} miles")
-
-
-# starting day here
-# simulating the day starting at 8:00am, time will pass in increments of 15 minutes
-# def simulate_day(truck_loader):
-#     start_time = timedelta(hours=8)
-#     end_of_day = timedelta(hours=17)
+# def display_truck_status(truck_loader):
+#     for truck_id, truck in truck_loader.trucks.items():
+#         print(f"Truck ID: {truck_id}")
+#         for package in truck.packages:
+#             print(f"Package: {package.package_id}, Address: {package.address}, Status: {package.status}")
 #
-#     current_time = start_time
-#
-#     while current_time <= end_of_day:
-#         if current_time == timedelta(hours=8):
-#             truck_loader.load_initial_trucks(truck_loader)
-#             truck_loader.load_together_packages(truck_loader)
-#         elif current_time == timedelta(hours=9, minutes=5):
-#             truck_loader.load_truck_2_packages(truck_loader)
-#         elif current_time == timedelta(hours=10, minutes=20):
-#             truck_loader.load_delayed_packages(truck_loader)
-#
-#     process_deliveries(truck_loader.trucks)
 
 
+# quicksort package list after loading packages but before deliveries are made
+# citing StackOverflow as reference https://stackoverflow.com/questions/18262306/quicksort-with-python
+def sort_packages(packages, start_address, address_list):
+    # validation if there is only one element in the array
+    if len(packages) <= 1:
+        return packages
+
+    pivot = packages[0]  # set pivot to first element in array for comparison
+    # find distance in miles between start location (hub) and pivot location
+    pivot_distance = find_distance_between(start_address, pivot.address, address_list)
+
+    # find distance in miles between hub and next package address, compare to pivot distance
+    less = \
+        [pkg for pkg in packages if find_distance_between(start_address, pkg.address, address_list) < pivot_distance]
+    equal = \
+        [pkg for pkg in packages if find_distance_between(start_address, pkg.address, address_list) == pivot_distance]
+    greater = \
+        [pkg for pkg in packages if find_distance_between(start_address, pkg.address, address_list) > pivot_distance]
+
+    # join sorted lists
+    return (sort_packages(less, start_address, address_list) + equal +
+            sort_packages(greater, start_address, address_list))
+
+
+# deliver packages after sorting and optimization
 def process_deliveries(tl, address_list):
     # loop over all available trucks and deliver packages
     for truck in tl.trucks.values():
         # current_location = "HUB"
         current_location = "4001 South 700 East"
         current_time = truck.departure_time
+        truck.total_mileage = 0  # initialize total mileage for each truck
         min_distance = 999
         min_package = None
         # process each package in the truck
@@ -152,17 +158,20 @@ def process_deliveries(tl, address_list):
             current_time += timedelta(hours=min_distance / 18)
             min_package.delivery_time = current_time
             min_package.update_status('Delivered', current_time)
-            print(f"Package {min_package.package_id} delivered at {min_package.delivery_time} on Truck {truck.truck_id}")
+            # update distance traveled for each truck
+            truck.total_mileage += min_distance
+            print(
+                f"Package {min_package.package_id} delivered at {min_package.delivery_time} on Truck {truck.truck_id}")
             current_location = package.address
+
+        print(f"Total mileage for Truck {truck.truck_id}: {truck.total_mileage}")
 
         truck.current_package_index += 1
 
-        # truck returns to hub after completing deliveries
-        # truck.return_to_hub(current_time)
-        # print(f"Truck {truck.truck_id} returned to hub at {truck.return_time}")
-
 
 distance_matrix = read_distance_file()
+
+
 # address_list = read_address_file()
 # address_to_index = create_address_to_index(address_list)
 
@@ -172,26 +181,31 @@ def main():
     address_list = read_address_file()
     address_to_index = create_address_to_index(address_list)
 
-    print(distance_matrix)
+    # print(distance_matrix)
 
     # create TruckLoader instance and load trucks
     truck_loader = TruckLoader(hash_table, distance_matrix, address_list)
-    # trucks = truck.get_route(truck_loader)
-
-    # simulate_day(truck_loader)
 
     # initialize simulated annealing with address_to_index for distance calculation
     optimizer = SimulatedAnnealing(distance_matrix, init_temp=100, alpha=0.995, address_to_index=address_to_index)
 
-    # truck_loader.load_trucks()
     truck_loader.load_truck_2_packages(truck_loader)
     truck_loader.load_together_packages(truck_loader)
     truck_loader.load_initial_trucks(truck_loader)
     truck_loader.load_delayed_packages(truck_loader)
-    # truck_loader.load_trucks()
-    #
-    truck_loader.optimize_truck_routes(optimizer)
-    #
+
+    # sort packages on each truck before processing deliveries
+    for truck in truck_loader.trucks.values():
+        start_address = "4001 South 700 East"  # hub address
+        sorted_packages = sort_packages(truck.packages, start_address, address_list)
+        print(f"Sorted packages: {sorted_packages}")
+        truck.packages = sorted_packages
+
+    # optimize routes now that packages have been sorted on each truck
+    # truck_loader.optimize_truck_routes(optimizer)
+
+    # process all deliveries along optimized routes
+    process_deliveries(truck_loader, address_list)
 
     #
     print(f"Truck 1 packages: {[p.package_id for p in truck_loader.trucks[1].packages]}")
@@ -200,7 +214,6 @@ def main():
 
     #
     # display_truck_status(truck_loader)
-    process_deliveries(truck_loader, address_list)
 
 
 if __name__ == "__main__":
