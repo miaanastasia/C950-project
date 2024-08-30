@@ -43,7 +43,7 @@ class Package:
             f"Status: {self.status:<20}  "
             f"Weight: {self.weight:<10}  "
             f"Delivery Time: {str(self.delivery_time):<10}  "
-            f"Truck ID: {self.truck_id:<10}  "
+            f"Truck ID: {str(self.truck_id):<10}  "
             f"Note: {self.note:<10}"
         )
 

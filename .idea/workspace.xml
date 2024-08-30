@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="140ca080-d1f8-49b1-ad5e-475087c6337b" name="Changes" comment="implemented quicksort for initial route planning of each truck.  optimization coming next">
-      <change afterPath="$PROJECT_DIR$/sort_utils.py" afterDir="false" />
+    <list default="true" id="140ca080-d1f8-49b1-ad5e-475087c6337b" name="Changes" comment="application fully functional.  now fixing order of packages to meet to 1030 deadline">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/driver.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/hash_table.py" beforeDir="false" afterPath="$PROJECT_DIR$/hash_table.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.py" beforeDir="false" afterPath="$PROJECT_DIR$/package.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/simulated_annealing.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulated_annealing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/truck.py" beforeDir="false" afterPath="$PROJECT_DIR$/truck.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/truck_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/truck_loader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -134,7 +129,7 @@
       <workItem from="1723918673711" duration="4180000" />
       <workItem from="1724255161888" duration="133614000" />
       <workItem from="1724598679543" duration="88138000" />
-      <workItem from="1724957138684" duration="20922000" />
+      <workItem from="1724957138684" duration="36552000" />
     </task>
     <task id="LOCAL-00001" summary="initial push to GitHub">
       <option name="closed" value="true" />
@@ -168,7 +163,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724648415520</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="application fully functional.  now fixing order of packages to meet to 1030 deadline">
+      <option name="closed" value="true" />
+      <created>1724987545207</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1724987545207</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -191,7 +194,8 @@
     <MESSAGE value="reverted truck_loader.py to working state, added simulated_annealing.py" />
     <MESSAGE value="trucks delivering packages based on greedy nearest neighbor approach.  optimization with simulated annealing coming next" />
     <MESSAGE value="implemented quicksort for initial route planning of each truck.  optimization coming next" />
-    <option name="LAST_COMMIT_MESSAGE" value="implemented quicksort for initial route planning of each truck.  optimization coming next" />
+    <MESSAGE value="application fully functional.  now fixing order of packages to meet to 1030 deadline" />
+    <option name="LAST_COMMIT_MESSAGE" value="application fully functional.  now fixing order of packages to meet to 1030 deadline" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -243,12 +247,12 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/C950_project$main.coverage" NAME="main Coverage Results" MODIFIED="1724987280012" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/C950_project$main.coverage" NAME="main Coverage Results" MODIFIED="1725045900391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$simulated_annealing_algorithm.coverage" NAME="simulated_annealing_algorithm Coverage Results" MODIFIED="1724375555319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$random.coverage" NAME="random Coverage Results" MODIFIED="1724715982976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/AppData/Local/Programs/Python/Python312/Lib" />
     <SUITE FILE_PATH="coverage/C950_project$truck_loader.coverage" NAME="truck_loader Coverage Results" MODIFIED="1724703811597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$simulated_annealing.coverage" NAME="simulated_annealing Coverage Results" MODIFIED="1724957503150" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/C950_project$package.coverage" NAME="package Coverage Results" MODIFIED="1724982576700" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/C950_project$package.coverage" NAME="package Coverage Results" MODIFIED="1724989866652" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$hash_table.coverage" NAME="hash_table Coverage Results" MODIFIED="1724375038988" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -1,5 +1,6 @@
 # truck_loader.py
 
+
 from truck import Truck
 from datetime import timedelta
 
@@ -21,15 +22,20 @@ class TruckLoader:
         # initialize sets to hold constrained packages
         # all together-packages loaded on Truck 1.  truck leaves from hub at 8:00am
         self.together_packages = [13, 14, 15, 16, 19, 20]
-        # all delayed packages loaded on Truck 2.  truck leaves from hub at 09:05am
+        # all delayed packages except 9 loaded on Truck 2.  truck leaves from hub at 09:05am
         self.delayed_packages = [6, 25, 28, 32, 3, 18, 36, 38]
-        self.remaining_packages = [35, 5, 37, 12, 8, 9, 30, 39]
+        # self.remaining_packages = [35, 5, 37, 12, 8, 9, 30, 39]
+
+        self.wrong_address = [9]
 
     def load_truck_1_packages(self, tl):
         # load all packages that must be delivered together
         # together_packages = [13, 14, 15, 16, 19, 20]
-        together_packages = [22, 26, 24, 14, 15, 16, 34, 20, 21, 19, 2, 33, 11, 4, 40, 13]
-        for package_id in together_packages:
+        # together_packages = [22, 26, 24, 14, 15, 16, 34, 20, 21, 19, 2, 33, 11, 4, 40, 13]
+
+        truck_1_packages = [13, 14, 15, 16, 19, 20, 1, 29, 30, 31, 34, 37, 40]
+        # all packages that either must be delivered together or have a 10:30 delivery deadline
+        for package_id in truck_1_packages:
             package = tl.hash_table.lookup(package_id)
             if package:
                 # choosing Truck 1 based on initial sort and time constraints
@@ -39,9 +45,10 @@ class TruckLoader:
                 # print(f"Together-packages loaded on truck 1")
 
     def load_truck_2_packages(self, tl):
-        # load packages delayed until 9:05am or 10:20am
-        # delayed_packages = [6, 9, 25, 28, 32]
-        delayed_packages = [25, 28, 1, 7, 29, 23, 10, 31, 32, 17, 18, 6, 36, 27, 38, 3]
+
+        delayed_packages = [3, 6, 18, 25, 28, 32, 36, 38]
+        # handling #25 separately in main bc of late delivery
+
         for package_id in delayed_packages:
             package = tl.hash_table.lookup(package_id)
             if package:
@@ -49,12 +56,26 @@ class TruckLoader:
                 # add package ID to delayed-package list
                 tl.delayed_packages.append(package_id)
 
-    def load_remaining_packages(self, tl):
 
-        remaining_packages = [35, 5, 37, 12, 8, 9, 30, 39]
+    def load_remaining_packages(self, tl):
+        wrong_address = [9]
+
+        for package_id in wrong_address:
+            package = tl.hash_table.lookup(package_id)
+            if package:
+                tl.trucks[3].load_package(package)
+                tl.wrong_address.append(package_id)
+
+        remaining_packages = [pkg_id for pkg_id in range(1, 41)
+                              if pkg_id not in tl.together_packages and
+                              pkg_id not in tl.delayed_packages and
+                              pkg_id not in tl.wrong_address]
 
         for package_id in remaining_packages:
             package = tl.hash_table.lookup(package_id)
             if package:
-                tl.trucks[3].load_package(package)
-                tl.remaining_packages.append(package_id)
+                # load onto either truck 2 or 3 based on balance
+                least_loaded_truck = min([tl.trucks[2], tl.trucks[3]], key=lambda truck: len(truck.package_list))
+                least_loaded_truck.load_package(package)
+
+

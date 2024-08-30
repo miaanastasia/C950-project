@@ -1,6 +1,6 @@
 # Mia Mitchell
 # ID: 010347381
-
+import truck
 # main.py
 
 from hash_table import HashTable
@@ -14,9 +14,14 @@ from truck_loader import TruckLoader
 hash_table = HashTable()
 
 
-# ********************************************************************************************
-#                     PROCESS DATA FOR PACKAGES, ADDRESSES, AND DISTANCES
-# ********************************************************************************************
+# **********************************************************************************************************************
+#                                PROCESS DATA FOR PACKAGES, ADDRESSES, AND DISTANCES
+
+# Read in data from the package, address, and distance files.  The package data will be loaded into a hash table for
+# easy access and organization.  The address data will be loaded into a simple list, and the distance data will be
+# loaded into a matrix for 1:1 address mapping.
+
+# **********************************************************************************************************************
 
 # read in package file and load into hash table
 def load_hash_table():
@@ -90,16 +95,28 @@ def find_distance_between(start_address, end_address, address_list):
     return float(distance) if distance is not None else None
 
 
-# ********************************************************************************************
-# ********************************************************************************************
+# **********************************************************************************************************************
+# **********************************************************************************************************************
 
-# simple sort packages by earliest deadline
+
+# initial sort of packages by earliest deadline
 def sort_by_deadline(packages):
     # sort through packages in hash table using deadline as the key
     return sorted(packages, key=lambda p: p.deadline)
 
 
-# deliver packages after sorting and optimization
+# **********************************************************************************************************************
+#                                       LOADING AND DELIVERING PACKAGES
+
+# Each package will be processed on one of the three trucks, accounting for proximity from hub, delivery deadline, and
+# any special note(s) the package may have.  The process_truck() function will loop through all packages using the
+# greedy nearest neighbor algorithm and deliver packages accordingly, while updating delivery time and mileage for each
+# individual truck.  The process_deliveries() function calls process_truck() and returns the mileage for all three
+# trucks, or total mileage of the route.
+
+# **********************************************************************************************************************
+
+# deliver packages after sorting
 def process_deliveries(tl, address_list):
     # loop over all available trucks and deliver packages
     route_mileage = 0  # placeholder for total mileage of all three trucks
@@ -117,6 +134,20 @@ def process_truck(t, address_list):
     current_time = t.departure_time
     t.truck_mileage = 0  # initialize total mileage for each truck
 
+    # Ensure package 25 is delivered first on Truck 2 because of late delivery time
+    # original delivery time was 11:22 am, now delivering at 09:13 am within deadline constraint
+    package_25 = next((pkg for pkg in t.package_list if pkg.package_id == 25), None)
+    if package_25:
+        distance = find_distance_between(current_location, package_25.address, address_list)
+        current_time += timedelta(hours=distance / 18)
+        package_25.delivery_time = current_time
+        package_25.departure_time = t.departure_time
+        package_25.update_delivery_status('Delivered', current_time)
+        t.truck_mileage += distance
+        current_location = package_25.address
+        package_25.truck_id = t.truck_id
+        t.package_list.remove(package_25)
+
     while len(t.package_list) > 0:
         min_distance = 999
         min_package = None
@@ -128,6 +159,7 @@ def process_truck(t, address_list):
             # greedy nearest neighbor
             # calculate minimum distance to find next package to deliver
             distance = find_distance_between(current_location, package.address, address_list)
+
             if distance < min_distance:
                 min_distance = distance
                 min_package = package
@@ -145,16 +177,14 @@ def process_truck(t, address_list):
         # identify which truck each package is on
         min_package.truck_id = t.truck_id
 
+        # mark current location at address where current package was delivered
         current_location = min_package.address
 
-        # remove the delivered package from the truck's list
+        # remove the delivered package from the truck's list of remaining packages
         t.package_list.remove(min_package)
 
+    # return mileage for each individual truck
     return t.truck_mileage
-
-
-# read in the distance file here so it is accessible by find_address_index() and find_distance_between
-distance_matrix = read_distance_file()
 
 
 # user interface for interactive console application
@@ -210,36 +240,38 @@ def user_interface():
             print("Invalid choice. Please try again.")
 
 
-# *****************************************************************************************
-#                              LOAD HASH TABLE AND NECESSARY FILES
-# *****************************************************************************************
+# **********************************************************************************************************************
+#                                        LOAD HASH TABLE AND NECESSARY FILES
+# **********************************************************************************************************************
 load_hash_table()
 address_list = read_address_file()
+distance_matrix = read_distance_file()
 
 # retrieve a list of package objects to sort
 all_packages = hash_table.get_all_packages()
 
-# sort by delivery deadline
+# sort by delivery deadline to get initial routes for each truck
 sorted_by_deadline = sort_by_deadline(all_packages)
 # print(f"Sort by deadline {sorted_by_deadline}\n")
 
-# *****************************************************************************************
+# **********************************************************************************************************************
 #   CREATE TRUCK LOADER INSTANCE
 #   FIND INITIAL ROUTES (lists of sorted packages for each truck)
-#   TWEAK THE ROUTES TO FIND AN OPTIMAL SOLUTION
-# *****************************************************************************************
+#   USE GREEDY ALGORITHM TO FIND AN OPTIMAL ROUTE IN ACCORDANCE WITH CONSTRAINTS
+# **********************************************************************************************************************
 
 truck_loader = TruckLoader(hash_table, distance_matrix, address_list, sorted_by_deadline)
 
 truck_loader.load_truck_1_packages(truck_loader)
 truck_loader.load_truck_2_packages(truck_loader)
+# adjust_route_for_deadline(package, address_list)
 truck_loader.load_remaining_packages(truck_loader)
 
 user_interface()
 
-# ********************************************************************************************
-#                         ROUTE OPTIMIZATION WITH SIMULATED ANNEALING
-# ********************************************************************************************
+# **********************************************************************************************************************
+#                                    ROUTE OPTIMIZATION WITH SIMULATED ANNEALING
+# **********************************************************************************************************************
 
 # # initialize simulated annealing with address_to_index for distance calculation
 # simulated_annealing = SimulatedAnnealing(find_distance_between, distance_matrix, address_list, init_temp=10000,
@@ -266,5 +298,5 @@ user_interface()
 # # optimize routes now that packages have been sorted on each truck
 # truck_loader.optimize_truck_routes()
 
-# ********************************************************************************************
-# ********************************************************************************************
+# **********************************************************************************************************************
+# **********************************************************************************************************************
