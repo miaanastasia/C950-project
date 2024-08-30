@@ -11,10 +11,10 @@ class HashTable:
         for i in range(initial_capacity):
             self.list.append([])
 
-    # define hash function for package placement
-    # used for testing purposes only
-    def _hash_function(self, key):
-        return int(key) % len(self.list)
+    # # define hash function for package placement
+    # # used for testing purposes only
+    # def _hash_function(self, key):
+    #     return int(key) % len(self.list)
 
     def insert(self, key, item):
         # find the bucket where the item will be inserted
@@ -60,7 +60,6 @@ class HashTable:
         return False
 
     # retrieve all packages stored in the hash table
-    # will be used when calling the greedy algorithm
     def get_all_packages(self):
         all_packages = []
         for bucket in self.list:
