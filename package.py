@@ -35,15 +35,15 @@ class Package:
     def __str__(self):
         return (
             f"Package ID: {self.package_id:<5}  "
+            f"Deadline: {self.deadline:<15}  "
+            f"Status: {self.status:<15}  "  
+            f"Delivery Time: {str(self.delivery_time):<10}  "
+            f"Truck ID: {self.truck_id:<5}  "
             f"Address: {self.address:<40}  "
             f"City: {self.city:<25}  "
             f"State: {self.state:<10}  "
             f"Zipcode: {self.zipcode:<10}  "
-            f"Deadline: {self.deadline:<20}  "
-            f"Status: {self.status:<20}  "
             f"Weight: {self.weight:<10}  "
-            f"Delivery Time: {str(self.delivery_time):<10}  "
-            f"Truck ID: {str(self.truck_id):<10}  "
             f"Note: {self.note:<10}"
         )
 
@@ -59,16 +59,27 @@ class Package:
         else:
             temp_status = 'En Route'
         return (
+            # f"Package ID: {self.package_id:<5}  "
+            # f"Address: {self.address:<40}  "
+            # f"City: {self.city:<25}  "
+            # f"State: {self.state:<10}  "
+            # f"Zipcode: {self.zipcode:<10}  "
+            # f"Deadline: {self.deadline:<20}  "
+            # f"Status: {temp_status:<20}  "
+            # f"Weight: {self.weight:<10}  "
+            # f"Delivery Time: {str(temp_delivery_time):<10}  "
+            # f"Truck ID: {self.truck_id:<10}  "
+            # f"Note: {self.note:<10}"
             f"Package ID: {self.package_id:<5}  "
+            f"Deadline: {self.deadline:<15}  "
+            f"Status: {temp_status:<15}  "
+            f"Delivery Time: {str(temp_delivery_time):<10}  "
+            f"Truck ID: {self.truck_id:<5}  "
             f"Address: {self.address:<40}  "
             f"City: {self.city:<25}  "
             f"State: {self.state:<10}  "
             f"Zipcode: {self.zipcode:<10}  "
-            f"Deadline: {self.deadline:<20}  "
-            f"Status: {temp_status:<20}  "
             f"Weight: {self.weight:<10}  "
-            f"Delivery Time: {str(temp_delivery_time):<10}  "
-            f"Truck ID: {self.truck_id:<10}  "
             f"Note: {self.note:<10}"
         )
 

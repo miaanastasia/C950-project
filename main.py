@@ -1,6 +1,6 @@
-# Mia Mitchell
 # ID: 010347381
-import truck
+# Mia Mitchell
+
 # main.py
 
 from hash_table import HashTable
@@ -108,11 +108,14 @@ def sort_by_deadline(packages):
 # **********************************************************************************************************************
 #                                       LOADING AND DELIVERING PACKAGES
 
-# Each package will be processed on one of the three trucks, accounting for proximity from hub, delivery deadline, and
-# any special note(s) the package may have.  The process_truck() function will loop through all packages using the
-# greedy nearest neighbor algorithm and deliver packages accordingly, while updating delivery time and mileage for each
-# individual truck.  The process_deliveries() function calls process_truck() and returns the mileage for all three
-# trucks, or total mileage of the route.
+# Each package will be processed on one of the three trucks, accounting for proximity from hub, delivery deadline,
+# and any special note(s) the package may have.  The process_truck() function will loop through all packages using
+# the greedy nearest neighbor algorithm and deliver packages accordingly, while updating delivery time and mileage
+# for each individual truck.  There is special handling for package 25 here, as the delivery deadline is 10:30 but
+# the package was consistently being delivered late during the implementation/testing phases of this program.  This
+# extra check for package 25 ensures that it is delivered on time while not disrupting the greedy nearest-neighbor
+# algorithm for the rest of the packages. The process_deliveries() function calls process_truck() and returns the
+# mileage for all three trucks, or total mileage of the route.
 
 # **********************************************************************************************************************
 
@@ -135,7 +138,7 @@ def process_truck(t, address_list):
     t.truck_mileage = 0  # initialize total mileage for each truck
 
     # Ensure package 25 is delivered first on Truck 2 because of late delivery time
-    # original delivery time was 11:22 am, now delivering at 09:13 am within deadline constraint
+    # original delivery time was 11:22 a.m., now delivering at 9:13 a.m. within deadline constraint
     package_25 = next((pkg for pkg in t.package_list if pkg.package_id == 25), None)
     if package_25:
         distance = find_distance_between(current_location, package_25.address, address_list)
@@ -154,8 +157,6 @@ def process_truck(t, address_list):
         # process each package in the truck
         # the function should be processing the optimized routes here, NOT the initial routes
         for package in t.package_list:
-            # print(f"\nProcessing delivery for Package {package.package_id} on Truck {t.truck_id}")
-
             # greedy nearest neighbor
             # calculate minimum distance to find next package to deliver
             distance = find_distance_between(current_location, package.address, address_list)
@@ -171,8 +172,6 @@ def process_truck(t, address_list):
         min_package.update_delivery_status('Delivered', current_time)
         # update distance traveled for each truck
         t.truck_mileage += min_distance
-        # print(
-        #     f"Package {min_package.package_id} delivered at {min_package.delivery_time} on Truck {t.truck_id}")
 
         # identify which truck each package is on
         min_package.truck_id = t.truck_id
@@ -193,7 +192,7 @@ def user_interface():
     print("Welcome to the Western Governors University Parcel Service.")
 
     route_mileage = process_deliveries(truck_loader, address_list)
-    print(f"Total mileage for the route: {route_mileage}")
+    print(f"Total mileage for the route: {route_mileage: .1f}")
 
     while True:
         print("\nMenu:")
@@ -264,7 +263,6 @@ truck_loader = TruckLoader(hash_table, distance_matrix, address_list, sorted_by_
 
 truck_loader.load_truck_1_packages(truck_loader)
 truck_loader.load_truck_2_packages(truck_loader)
-# adjust_route_for_deadline(package, address_list)
 truck_loader.load_remaining_packages(truck_loader)
 
 user_interface()
@@ -272,6 +270,24 @@ user_interface()
 # **********************************************************************************************************************
 #                                    ROUTE OPTIMIZATION WITH SIMULATED ANNEALING
 # **********************************************************************************************************************
+# This code is commented out due to incomplete implementation.  It is still included to give an idea of the next
+# algorithm I wanted to implement in this project, which would have been the optimization of each truck's route with the
+# simulated annealing algorithm.  The initial idea was to first create a route for each truck using the greedy algorithm
+# which adhered to the given constraints and chose the next package on the route based on proximity.  Given the initial
+# route created by the greedy algorithm, the route would then undergo optimization with the simulated annealing
+# approach.  The simulated annealing algorithm uses multiple neighbor solutions (swapping two packages on one truck,
+# swapping two packages between two trucks, removes a package and inserts it at a different position, etc.) to find
+# an optimal solution while still accounting for any constraints.  Each neighbor solution is accepted with a certain
+# probability, even if the new solution is "worse" or results in a longer route.  If the new solution is unfavorable,
+# it is still accepted, but with a low probability to reduce the amount of times a similar solution occurs.
+# These actions are controlled by an initially-set "temperature" which represents the scope of the search for the next
+# package.  As the trials produce new solutions, each solution is met with a different probability, but the temperature
+# is reduced by the same amount to narrow the scope of the search for the next package.  This was the idea that I wanted
+# to implement with this project, but it proved difficult for a project with only 40 items and for my skill set as well.
+
+# The code is still included here, as well as the actual algorithm in simulated_annealing.py, so that you can get an
+# idea of how I attempted to go about optimizing the route.
+
 
 # # initialize simulated annealing with address_to_index for distance calculation
 # simulated_annealing = SimulatedAnnealing(find_distance_between, distance_matrix, address_list, init_temp=10000,

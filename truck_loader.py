@@ -1,6 +1,5 @@
 # truck_loader.py
 
-
 from truck import Truck
 from datetime import timedelta
 
@@ -60,12 +59,14 @@ class TruckLoader:
     def load_remaining_packages(self, tl):
         wrong_address = [9]
 
+        # load only package 9 onto truck 3 based on 10:20 a.m. delay with wrong address
         for package_id in wrong_address:
             package = tl.hash_table.lookup(package_id)
             if package:
                 tl.trucks[3].load_package(package)
                 tl.wrong_address.append(package_id)
 
+        # load any packages not in the pre-defined sets on either truck 2 or 3 depending on capacity
         remaining_packages = [pkg_id for pkg_id in range(1, 41)
                               if pkg_id not in tl.together_packages and
                               pkg_id not in tl.delayed_packages and

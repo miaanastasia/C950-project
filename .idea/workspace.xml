@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="140ca080-d1f8-49b1-ad5e-475087c6337b" name="Changes" comment="application fully functional.  now fixing order of packages to meet to 1030 deadline">
+    <list default="true" id="140ca080-d1f8-49b1-ad5e-475087c6337b" name="Changes" comment="process_truck() logic adjusted to handle late delivery of package 25">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.py" beforeDir="false" afterPath="$PROJECT_DIR$/package.py" afterDir="false" />
@@ -129,7 +129,7 @@
       <workItem from="1723918673711" duration="4180000" />
       <workItem from="1724255161888" duration="133614000" />
       <workItem from="1724598679543" duration="88138000" />
-      <workItem from="1724957138684" duration="36552000" />
+      <workItem from="1724957138684" duration="42945000" />
     </task>
     <task id="LOCAL-00001" summary="initial push to GitHub">
       <option name="closed" value="true" />
@@ -171,7 +171,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724987545207</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="process_truck() logic adjusted to handle late delivery of package 25">
+      <option name="closed" value="true" />
+      <created>1725046216685</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1725046216685</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,7 +203,8 @@
     <MESSAGE value="trucks delivering packages based on greedy nearest neighbor approach.  optimization with simulated annealing coming next" />
     <MESSAGE value="implemented quicksort for initial route planning of each truck.  optimization coming next" />
     <MESSAGE value="application fully functional.  now fixing order of packages to meet to 1030 deadline" />
-    <option name="LAST_COMMIT_MESSAGE" value="application fully functional.  now fixing order of packages to meet to 1030 deadline" />
+    <MESSAGE value="process_truck() logic adjusted to handle late delivery of package 25" />
+    <option name="LAST_COMMIT_MESSAGE" value="process_truck() logic adjusted to handle late delivery of package 25" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -247,7 +256,7 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/C950_project$main.coverage" NAME="main Coverage Results" MODIFIED="1725045900391" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/C950_project$main.coverage" NAME="main Coverage Results" MODIFIED="1725070183959" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$simulated_annealing_algorithm.coverage" NAME="simulated_annealing_algorithm Coverage Results" MODIFIED="1724375555319" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/C950_project$random.coverage" NAME="random Coverage Results" MODIFIED="1724715982976" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/AppData/Local/Programs/Python/Python312/Lib" />
     <SUITE FILE_PATH="coverage/C950_project$truck_loader.coverage" NAME="truck_loader Coverage Results" MODIFIED="1724703811597" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
